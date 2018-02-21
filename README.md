@@ -1,0 +1,1 @@
+Simon Says game built with ReactJS as part of the FreeCodeCamp course ( work in progress )
