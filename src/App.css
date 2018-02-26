@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css?family=Orbitron');
+@import url('https://fonts.googleapis.com/css?family=Sarpanch:900');
 
 body {
     margin: 0;
@@ -14,6 +15,7 @@ body {
     background-color: #1d1f20;
     border-radius: 100%;
     padding: 20px 0 0 20px;
+    position: relative;
 }
 
 .game-button {
@@ -42,4 +44,73 @@ body {
 }
 .btn-rb {
     border-bottom-right-radius: 100%;
+}
+
+#simon-center {
+    width: 180px;
+    height: 180px;
+    background-color: #ebecf1;
+    border-radius: 100%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border: 20px solid #1d1f20;
+    padding: 20px;
+}
+
+#game-title {
+    font-family: 'Sarpanch', sans-serif;
+    font-size: 40px;
+    padding-top: 40px;
+    background-color: #1d1f20;
+    color: #ebecf1;
+    text-align: center;
+    width: 200px;
+    height: 60px;
+    border-top-right-radius: 200px;
+    border-top-left-radius: 200px;
+    position: relative;
+    top: -10px;
+    left: -10px;
+}
+
+#game-controls {
+    overflow: hidden;
+}
+
+#game-controls > div {
+    width: 33%;
+    float: left;
+    padding-top: 5px;
+    text-align: center;
+}
+
+#score-display {
+    background-color: #1d1f21;
+    color: #ebecf1;
+    width: 50px;
+    height: 20px;
+    font-size: 16px;
+    line-height: 16px;
+    text-align: center;
+}
+
+.controls-desc {
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 10px;
+    text-align: center;
+}
+
+.controls-led  {
+    width: 10px;
+    height: 10px;
+    border-radius: 10px;
+    background-color: #F00;
+    display: block;
+    margin: 0 auto;
+}
+
+.controls-led.on  {
+    background-color: #7D0;
 }

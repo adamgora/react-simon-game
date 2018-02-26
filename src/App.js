@@ -30,6 +30,25 @@ class App extends Component {
                     <div className="game-button btn-rt btn-red"></div>
                     <div className="game-button btn-lb btn-yellow"></div>
                     <div className="game-button btn-rb btn-blue"></div>
+                    <div id="simon-center">
+                        <div id="game-title">simon</div>
+                        <div id="game-controls">
+                            <div id="score">
+                                <div id="score-display">20</div>
+                                <div className="controls-desc">score</div>
+                            </div>
+                            <div id="start">
+                                <div className="controls-led off"></div>
+                                <button className="controls-button"></button>
+                                <div className="controls-desc">start</div>
+                            </div>
+                            <div id="strict">
+                                <div className="controls-led on"></div>
+                                <button className="controls-button"></button>
+                                <div className="controls-desc">strict</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         );
