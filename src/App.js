@@ -48,6 +48,13 @@ class App extends Component {
                                 <div className="controls-desc">strict</div>
                             </div>
                         </div>
+                        <div id="game-on-switch">
+                            <div id="switch-container">
+                                <div className="toogle-text-on">on</div>
+                                <div className="toggle"></div>
+                                <div className="toogle-text-off">off</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
