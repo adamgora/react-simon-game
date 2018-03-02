@@ -20,7 +20,8 @@ class App extends Component {
                 3: sound3,
                 4: sound4
             },
-            soundPlaying: null
+            soundPlaying: null,
+            power: 0
         };
     }
 
@@ -30,6 +31,15 @@ class App extends Component {
 
     componentWillUnmount() {
         this.unsetInterval();
+    }
+
+    /**
+     * Turn game on/off
+     */
+    toggleGamePower() {
+        this.setState({
+            power: !this.state.power
+        });
     }
 
     setInterval() {
@@ -113,9 +123,9 @@ class App extends Component {
                             </div>
                         </div>
                         <div id="game-on-switch">
-                            <div id="switch-container">
+                            <div id="switch-container" className={this.state.power ? 'on' : 'off'}>
                                 <div className="toogle-text-on">on</div>
-                                <div className="toggle"></div>
+                                <div className="toggle" onClick={() => this.toggleGamePower()}></div>
                                 <div className="toogle-text-off">off</div>
                             </div>
                         </div>

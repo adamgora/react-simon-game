@@ -146,8 +146,6 @@ body {
 
 #switch-container .toggle {
     position: absolute;
-    top: 0;
-    left: 0;
     width: 20px;
     height: 20px;
     background-color: #2d7ac9;
@@ -155,6 +153,16 @@ body {
     cursor: pointer;
     border-top-right-radius: 5px;
     border-bottom-right-radius: 5px;
+}
+
+#switch-container.off .toggle {
+    top: 0;
+    left: 0;
+}
+
+#switch-container.on .toggle {
+    top: 0;
+    right: 0;
 }
 
 #switch-container .toogle-text-on,
@@ -166,15 +174,21 @@ body {
     line-height: 20px;
     font-size: 10px;
     text-align: center;
-}
-#switch-container .toogle-text-on {
     position: absolute;
     top: 0;
+}
+#switch-container.off .toogle-text-on {
     left: -40px;
 }
 
-#switch-container .toogle-text-off {
-    position: absolute;
-    top: 0;
+#switch-container.off .toogle-text-off {
     left: 20px;
+}
+
+#switch-container.on .toogle-text-on {
+    left: 0;
+}
+
+#switch-container.on .toogle-text-off {
+    left: 60px;
 }
