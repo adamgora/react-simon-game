@@ -11,6 +11,7 @@ class App extends Component {
         super();
         this.state = {
             gameQueue: [],
+            answers: [],
             level: 0,
             intervalID: null,
             currentQueueItem: 0,
@@ -23,7 +24,8 @@ class App extends Component {
             },
             soundPlaying: null,
             power: 0,
-            started: 0
+            started: 0,
+            locked: 1,
         };
     }
 
@@ -33,6 +35,18 @@ class App extends Component {
 
     componentWillUnmount() {
         this.unsetInterval();
+    }
+
+    lockBoard() {
+        this.setState({locked: 1});
+    }
+
+    unlockBoard() {
+        this.setState({locked: 0});
+    }
+
+    resetAnswers() {
+        this.setState({answers: []});
     }
 
     /**
@@ -109,8 +123,7 @@ class App extends Component {
         this.highlightButton(this.state.currentQueueItem);
         this.setState({currentQueueItem: this.state.currentQueueItem + 1});
         if (this.state.currentQueueItem > this.state.gameQueue.length) {
-            this.unsetInterval();
-            this.unhiglightButtons(null);
+            this.startUserTurn();
         }
     }
 
@@ -135,6 +148,17 @@ class App extends Component {
         })
     }
 
+    startUserTurn() {
+        this.unsetInterval();
+        this.unhiglightButtons(null);
+        this.unlockBoard();
+        this.resetAnswers();
+    }
+
+    answer(button) {
+        this.highlightButton(button);
+    }
+
     render() {
         return (
             <div className="App">
@@ -145,10 +169,18 @@ class App extends Component {
                     <source id="src_mp3" type="audio/mp3" src={this.state.soundPlaying}/>
                 </audio>
                 <div id="game-container">
-                    <div className={(this.state.activeButton == 1 ? 'active' : '') + " game-button btn-lt btn-green"}></div>
-                    <div className={(this.state.activeButton == 2 ? 'active' : '') + " game-button btn-rt btn-red"}></div>
-                    <div className={(this.state.activeButton == 3 ? 'active' : '') + " game-button btn-lb btn-yellow"}></div>
-                    <div className={(this.state.activeButton == 4 ? 'active' : '') + " game-button btn-rb btn-blue"}></div>
+                    <div
+                        className={(this.state.activeButton == 1 ? 'active' : '') + " game-button btn-lt btn-green"}
+                        onClick={() => this.answer(1)}></div>
+                    <div
+                        className={(this.state.activeButton == 2 ? 'active' : '') + " game-button btn-rt btn-red"}
+                        onClick={() => this.answer(2)}></div>
+                    <div
+                        className={(this.state.activeButton == 3 ? 'active' : '') + " game-button btn-lb btn-yellow"}
+                        onClick={() => this.answer(3)}></div>
+                    <div
+                        className={(this.state.activeButton == 4 ? 'active' : '') + " game-button btn-rb btn-blue"}
+                        onClick={() => this.answer(4)}></div>
                     <div id="simon-center">
                         <div id="game-title">simon</div>
                         <div id="game-controls">
