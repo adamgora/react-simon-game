@@ -1,11 +1,6 @@
 import React, {Component} from 'react';
 import './App.css';
 
-import sound1 from './sounds/simonSound1.mp3';
-import sound2 from './sounds/simonSound2.mp3';
-import sound3 from './sounds/simonSound3.mp3';
-import sound4 from './sounds/simonSound4.mp3';
-
 class App extends Component {
     constructor() {
         super();
@@ -16,21 +11,42 @@ class App extends Component {
             intervalID: null,
             currentQueueItem: 0,
             activeButton: null,
-            sounds: {
-                1: sound1,
-                2: sound2,
-                3: sound3,
-                4: sound4
-            },
-            soundPlaying: null,
+            fqs: [300, 250, 200, 150],
             power: 0,
             started: 0,
             locked: 1,
         };
+
+        this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        this.oscillator = this.audioContext.createOscillator();
+        this.biquadFilter = this.audioContext.createBiquadFilter();
+        this.gainNode = this.audioContext.createGain();
     }
 
     componentDidMount() {
+        this.oscillator.connect(this.biquadFilter);
+        this.biquadFilter.connect(this.gainNode);
+        this.gainNode.connect(this.audioContext.destination);
+        this.oscillator.type = 'sine';
+        this.gainNode.gain.value = 0;
+        this.oscillator.start(0.0);
+    }
 
+    test() {
+
+        /*for (let i = 0; i < fqs.length; i++) {
+            (function (index, context) {
+                setTimeout(function () {
+                    context.t2(fqs[index]);
+                }, i * 1000);
+            })(i, this);
+        }*/
+    }
+
+    t2(f) {
+        /*this.oscillator.frequency.value = f;
+        this.gainNode.gain.linearRampToValueAtTime(0.5, this.audioContext.currentTime + 0.5);
+        this.gainNode.gain.linearRampToValueAtTime(0, this.audioContext.currentTime + 1);*/
     }
 
     componentWillUnmount() {
@@ -130,9 +146,11 @@ class App extends Component {
     playSound(index) {
         const soundIndex = this.state.gameQueue[index];
         this.setState({soundPlaying: this.state.sounds[soundIndex]}, function () {
-            this.audioContainer.pause();
+            //this.audioContainer.pause();
             this.audioContainer.load();
-            this.audioContainer.play();
+            setTimeout(function () {
+                this.audioContainer.play();
+            }.bind(this), 1);
         })
     }
 
@@ -162,12 +180,8 @@ class App extends Component {
     render() {
         return (
             <div className="App">
-                <button onClick={() => this.playQueue()}>Start test</button>
-                <audio id="audio" ref={(audio) => {
-                    this.audioContainer = audio;
-                }}>
-                    <source id="src_mp3" type="audio/mp3" src={this.state.soundPlaying}/>
-                </audio>
+                <button onClick={() => this.test()}>Start test</button>
+
                 <div id="game-container">
                     <div
                         className={(this.state.activeButton == 1 ? 'active' : '') + " game-button btn-lt btn-green"}
