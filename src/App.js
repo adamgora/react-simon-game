@@ -5,16 +5,16 @@ class App extends Component {
     constructor() {
         super();
         this.state = {
-            gameQueue: [],
+            gameQueue: [0, 1, 2, 3],
             answers: [],
             level: 0,
-            intervalID: null,
             currentQueueItem: 0,
             activeButton: null,
             fqs: [300, 250, 200, 150],
             power: 0,
             started: 0,
             locked: 1,
+            playingQueue: false,
         };
 
         this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -30,6 +30,12 @@ class App extends Component {
         this.oscillator.type = 'sine';
         this.gainNode.gain.value = 0;
         this.oscillator.start(0.0);
+    }
+
+    componentDidUpdate() {
+        if (this.state.playingQueue) {
+            this.playQueue();
+        }
     }
 
     test() {
@@ -114,18 +120,19 @@ class App extends Component {
      * Draws next element and adds it to game queue
      */
     drawNext() {
-        const next = Math.floor(Math.random() * 4) + 1;
+        const next = Math.floor(Math.random() * 3) + 1;
         const gameQueue = [...this.state.gameQueue];
         gameQueue.push(next);
         this.setState({gameQueue});
     }
 
     setInterval() {
-        const intervalID = setInterval(this.playItem.bind(this), 500);
+        const intervalID = setInterval(this.playItem.bind(this), 1000);
         this.setState({intervalID});
     }
 
     unsetInterval() {
+        console.log('unsetting interval');
         clearInterval(this.state.intervalID);
     }
 
@@ -138,23 +145,36 @@ class App extends Component {
         this.playSound(this.state.currentQueueItem);
         this.highlightButton(this.state.currentQueueItem);
         this.setState({currentQueueItem: this.state.currentQueueItem + 1});
+        console.log('current queue item ' + this.state.currentQueueItem);
+        console.log('current queue length ' + this.state.gameQueue.length);
+        console.log('---------------------------');
         if (this.state.currentQueueItem > this.state.gameQueue.length) {
             this.startUserTurn();
         }
     }
 
     playSound(index) {
+        console.log('sound index: ' + index);
         const soundIndex = this.state.gameQueue[index];
-        this.setState({soundPlaying: this.state.sounds[soundIndex]}, function () {
+        if(soundIndex === undefined) {
+            return false;
+        }
+        console.log('soundIndex: ' + this.state.gameQueue[index]);
+        console.log('sound selected: ' + this.state.fqs[soundIndex]);
+        this.oscillator.frequency.value = this.state.fqs[soundIndex];
+        this.gainNode.gain.linearRampToValueAtTime(0.5, this.audioContext.currentTime + 0.5);
+        this.gainNode.gain.linearRampToValueAtTime(0, this.audioContext.currentTime + 1);
+        /*this.setState({soundPlaying: this.state.sounds[soundIndex]}, function () {
             //this.audioContainer.pause();
             this.audioContainer.load();
             setTimeout(function () {
                 this.audioContainer.play();
             }.bind(this), 1);
-        })
+        })*/
     }
 
     highlightButton(index) {
+        console.log('button index ' + this.state.gameQueue[index]);
         this.setState({
             activeButton: this.state.gameQueue[index]
         })
@@ -168,6 +188,7 @@ class App extends Component {
 
     startUserTurn() {
         this.unsetInterval();
+        console.log('unhiglighting buttons');
         this.unhiglightButtons(null);
         this.unlockBoard();
         this.resetAnswers();
@@ -184,17 +205,17 @@ class App extends Component {
 
                 <div id="game-container">
                     <div
-                        className={(this.state.activeButton == 1 ? 'active' : '') + " game-button btn-lt btn-green"}
+                        className={(this.state.activeButton == 0 ? 'active' : '') + " game-button btn-lt btn-green"}
+                        onClick={() => this.answer(0)}></div>
+                    <div
+                        className={(this.state.activeButton == 1 ? 'active' : '') + " game-button btn-rt btn-red"}
                         onClick={() => this.answer(1)}></div>
                     <div
-                        className={(this.state.activeButton == 2 ? 'active' : '') + " game-button btn-rt btn-red"}
+                        className={(this.state.activeButton == 2 ? 'active' : '') + " game-button btn-lb btn-yellow"}
                         onClick={() => this.answer(2)}></div>
                     <div
-                        className={(this.state.activeButton == 3 ? 'active' : '') + " game-button btn-lb btn-yellow"}
+                        className={(this.state.activeButton == 3 ? 'active' : '') + " game-button btn-rb btn-blue"}
                         onClick={() => this.answer(3)}></div>
-                    <div
-                        className={(this.state.activeButton == 4 ? 'active' : '') + " game-button btn-rb btn-blue"}
-                        onClick={() => this.answer(4)}></div>
                     <div id="simon-center">
                         <div id="game-title">simon</div>
                         <div id="game-controls">
