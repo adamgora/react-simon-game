@@ -7,7 +7,7 @@ class App extends Component {
         this.state = {
             gameQueue: [0, 1, 2, 3],
             answers: [],
-            level: 0,
+            level: 1,
             currentQueueItem: 0,
             activeButton: null,
             fqs: [300, 250, 200, 150],
@@ -89,11 +89,12 @@ class App extends Component {
         if (!this.state.power) {
             return false;
         }
-        this.resetGame();
-        this.move();
-        this.setState({
-            started: 1,
-        });
+        this.resetGame().then(function () {
+            this.move();
+            this.setState({
+                started: 1,
+            });
+        }.bind(this));
 
     }
 
@@ -101,10 +102,12 @@ class App extends Component {
      * Reset game state
      */
     resetGame() {
-        this.setState({
-            gameQueue: [],
-            level: 0,
-        })
+        return new Promise((resolve) => {
+            this.setState({
+                gameQueue: [],
+                level: 1,
+            }, () => resolve())
+        });
     }
 
     /**
@@ -132,7 +135,6 @@ class App extends Component {
     }
 
     unsetInterval() {
-        console.log('unsetting interval');
         clearInterval(this.state.intervalID);
     }
 
@@ -144,37 +146,26 @@ class App extends Component {
     playItem() {
         this.playSound(this.state.currentQueueItem);
         this.highlightButton(this.state.currentQueueItem);
+        setTimeout(function() {
+            this.unhiglightButtons();
+        }.bind(this), 500);
         this.setState({currentQueueItem: this.state.currentQueueItem + 1});
-        console.log('current queue item ' + this.state.currentQueueItem);
-        console.log('current queue length ' + this.state.gameQueue.length);
-        console.log('---------------------------');
         if (this.state.currentQueueItem > this.state.gameQueue.length) {
             this.startUserTurn();
         }
     }
 
     playSound(index) {
-        console.log('sound index: ' + index);
         const soundIndex = this.state.gameQueue[index];
         if(soundIndex === undefined) {
             return false;
         }
-        console.log('soundIndex: ' + this.state.gameQueue[index]);
-        console.log('sound selected: ' + this.state.fqs[soundIndex]);
         this.oscillator.frequency.value = this.state.fqs[soundIndex];
         this.gainNode.gain.linearRampToValueAtTime(0.5, this.audioContext.currentTime + 0.5);
         this.gainNode.gain.linearRampToValueAtTime(0, this.audioContext.currentTime + 1);
-        /*this.setState({soundPlaying: this.state.sounds[soundIndex]}, function () {
-            //this.audioContainer.pause();
-            this.audioContainer.load();
-            setTimeout(function () {
-                this.audioContainer.play();
-            }.bind(this), 1);
-        })*/
     }
 
     highlightButton(index) {
-        console.log('button index ' + this.state.gameQueue[index]);
         this.setState({
             activeButton: this.state.gameQueue[index]
         })
@@ -188,7 +179,6 @@ class App extends Component {
 
     startUserTurn() {
         this.unsetInterval();
-        console.log('unhiglighting buttons');
         this.unhiglightButtons(null);
         this.unlockBoard();
         this.resetAnswers();
@@ -221,7 +211,7 @@ class App extends Component {
                         <div id="game-controls">
                             <div id="score">
                                 <div id="score-display">{this.state.level}</div>
-                                <div className="controls-desc">score</div>
+                                <div className="controls-desc">level</div>
                             </div>
                             <div id="start">
                                 <div className={(this.state.started ? 'on' : 'off') + ' controls-led'}></div>
@@ -229,7 +219,7 @@ class App extends Component {
                                     className={(this.state.started ? 'pressed' : '') + ' controls-button'}
                                     onClick={() => this.startGame()}
                                 ></button>
-                                <div className="controls-desc">start</div>
+                                <div className="controls-desc">{this.state.started ? 'restart' : 'start'}</div>
                             </div>
                             <div id="strict">
                                 <div className="controls-led on"></div>
