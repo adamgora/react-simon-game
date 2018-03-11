@@ -5,9 +5,9 @@ class App extends Component {
     constructor() {
         super();
         this.state = {
-            gameQueue: [0, 1, 2, 3],
+            gameQueue: [],
             answers: [],
-            level: 1,
+            level: 0,
             currentQueueItem: 0,
             activeButton: null,
             fqs: [300, 250, 200, 150],
@@ -36,23 +36,6 @@ class App extends Component {
         if (this.state.playingQueue) {
             this.playQueue();
         }
-    }
-
-    test() {
-
-        /*for (let i = 0; i < fqs.length; i++) {
-            (function (index, context) {
-                setTimeout(function () {
-                    context.t2(fqs[index]);
-                }, i * 1000);
-            })(i, this);
-        }*/
-    }
-
-    t2(f) {
-        /*this.oscillator.frequency.value = f;
-        this.gainNode.gain.linearRampToValueAtTime(0.5, this.audioContext.currentTime + 0.5);
-        this.gainNode.gain.linearRampToValueAtTime(0, this.audioContext.currentTime + 1);*/
     }
 
     componentWillUnmount() {
@@ -105,7 +88,7 @@ class App extends Component {
         return new Promise((resolve) => {
             this.setState({
                 gameQueue: [],
-                level: 1,
+                level: 0,
             }, () => resolve())
         });
     }
@@ -115,8 +98,16 @@ class App extends Component {
      * Add sound to array and play all sounds queued
      */
     move() {
+        this.lockBoard();
         this.drawNext();
         this.playQueue();
+        this.upOneLevel();
+    }
+
+    upOneLevel() {
+        this.setState({
+            level: this.state.level + 1
+        });
     }
 
     /**
@@ -185,7 +176,32 @@ class App extends Component {
     }
 
     answer(button) {
-        this.highlightButton(button);
+        if(this.state.locked) {
+           return false;
+        }
+
+        const answers = [...this.state.answers];
+        answers.push(button);
+
+        const lastAnswerIndex = answers.length - 1;
+
+        if(button == this.state.gameQueue[lastAnswerIndex]) {
+            this.highlightButton(lastAnswerIndex);
+            this.playSound(lastAnswerIndex);
+            this.setState({
+                answers: answers
+            });
+            setTimeout(function() {
+                this.unhiglightButtons();
+            }.bind(this), 500);
+
+            if(lastAnswerIndex == this.state.gameQueue.length - 1) {
+                this.move();
+            }
+
+        } else {
+            console.log('error!');
+        }
     }
 
     render() {
