@@ -11,6 +11,7 @@ class App extends Component {
             currentQueueItem: 0,
             activeButton: null,
             fqs: [300, 250, 200, 150],
+            errorFrequency: 110,
             power: 0,
             started: 0,
             locked: 1,
@@ -21,6 +22,10 @@ class App extends Component {
         this.oscillator = this.audioContext.createOscillator();
         this.biquadFilter = this.audioContext.createBiquadFilter();
         this.gainNode = this.audioContext.createGain();
+
+        this.ErrorOscillator = this.audioContext.createOscillator();
+        this.errorFilter = this.audioContext.createBiquadFilter();
+        this.errorGain = this.audioContext.createGain();
     }
 
     componentDidMount() {
@@ -30,6 +35,14 @@ class App extends Component {
         this.oscillator.type = 'sine';
         this.gainNode.gain.value = 0;
         this.oscillator.start(0.0);
+
+        this.ErrorOscillator.connect(this.errorFilter);
+        this.errorFilter.connect(this.errorGain);
+        this.errorGain.connect(this.audioContext.destination);
+        this.ErrorOscillator.type = 'sine';
+        this.ErrorOscillator.frequency.value = this.state.errorFrequency;
+        this.errorGain.gain.value = 0;
+        this.ErrorOscillator.start(0.0);
     }
 
     componentDidUpdate() {
@@ -200,8 +213,18 @@ class App extends Component {
             }
 
         } else {
-            console.log('error!');
+            this.error();
         }
+    }
+
+    error() {
+        this.errorGain.gain.value = 0.5;
+        setTimeout(function() {
+            this.errorGain.gain.value = 0;
+            this.resetAnswers();
+            this.lockBoard();
+            this.playQueue();
+        }.bind(this), 300);
     }
 
     render() {
