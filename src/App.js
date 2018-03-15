@@ -16,6 +16,7 @@ class App extends Component {
             started: 0,
             locked: 1,
             playingQueue: false,
+            strictMode: false,
         };
 
         this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -92,6 +93,16 @@ class App extends Component {
             });
         }.bind(this));
 
+    }
+
+    toggleStrictMode() {
+        if (!this.state.power) {
+            return false;
+        }
+
+        this.setState({
+            strictMode: !this.state.strictMode,
+        });
     }
 
     /**
@@ -221,9 +232,15 @@ class App extends Component {
         this.errorGain.gain.value = 0.5;
         setTimeout(function() {
             this.errorGain.gain.value = 0;
-            this.resetAnswers();
-            this.lockBoard();
-            this.playQueue();
+            if(this.state.strictMode) {
+                this.resetGame().then(function () {
+                    this.move();
+                }.bind(this));
+            } else {
+                this.resetAnswers();
+                this.lockBoard();
+                this.playQueue();
+            }
         }.bind(this), 300);
     }
 
@@ -261,8 +278,11 @@ class App extends Component {
                                 <div className="controls-desc">{this.state.started ? 'restart' : 'start'}</div>
                             </div>
                             <div id="strict">
-                                <div className="controls-led on"></div>
-                                <button className="controls-button"></button>
+                                <div className={(this.state.strictMode ? 'on' : 'off') + ' controls-led'}></div>
+                                <button
+                                    className={(this.state.strictMode ? 'pressed' : '') + ' controls-button'}
+                                    onClick={() => this.toggleStrictMode()}
+                                ></button>
                                 <div className="controls-desc">strict</div>
                             </div>
                         </div>
