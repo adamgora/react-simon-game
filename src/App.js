@@ -95,6 +95,8 @@ class App extends Component {
         }
         this.resetGame().then(function () {
             this.move();
+            this.hideInfoBar();
+            this.resetInfoBar();
             this.setState({
                 started: 1,
                 level: 1
@@ -223,7 +225,7 @@ class App extends Component {
 
         const lastAnswerIndex = answers.length - 1;
 
-        if (button == this.state.gameQueue[lastAnswerIndex]) {
+        if (button === this.state.gameQueue[lastAnswerIndex]) {
             this.highlightButton(this.state.gameQueue[lastAnswerIndex]);
             this.playSound(this.state.gameQueue[lastAnswerIndex]);
             this.setState({
@@ -233,10 +235,13 @@ class App extends Component {
                 this.unhiglightButtons();
             }.bind(this), 500);
 
-            if (lastAnswerIndex == this.state.gameQueue.length - 1) {
-                //this.move();
+            if (lastAnswerIndex === this.state.gameQueue.length - 1) {
                 this.lockBoard();
-                this.showInfoBar()
+                if (lastAnswerIndex === this.maxLevel - 1) {
+                    this.showEndGameInfoBar();
+                } else {
+                    this.showInfoBar();
+                }
             }
 
         } else {
@@ -272,6 +277,31 @@ class App extends Component {
         });
     }
 
+    showEndGameInfoBar() {
+        const infoButton = {...this.state.infoButton};
+        infoButton.text = 'You won the whole game!';
+        infoButton.buttonText = 'Restart';
+        infoButton.buttonAction = this.startGame;
+        infoButton.visible = true;
+
+        this.setState({
+            infoButton: {...this.state.infoButton, ...infoButton}
+        });
+
+    }
+
+    resetInfoBar() {
+        this.setState({
+            infoButton: {
+                ...this.state.infoButton, ...{
+                    text: 'Success!',
+                    buttonText: 'Next Level',
+                    buttonAction: this.upOneLevel,
+                }
+            }
+        });
+    }
+
     render() {
         return (
             <div className="App">
@@ -289,16 +319,16 @@ class App extends Component {
                             null
                     }
                     <div
-                        className={(this.state.activeButton == 0 ? 'active' : '') + " game-button btn-lt btn-green"}
+                        className={(this.state.activeButton === 0 ? 'active' : '') + " game-button btn-lt btn-green"}
                         onClick={() => this.answer(0)}></div>
                     <div
-                        className={(this.state.activeButton == 1 ? 'active' : '') + " game-button btn-rt btn-red"}
+                        className={(this.state.activeButton === 1 ? 'active' : '') + " game-button btn-rt btn-red"}
                         onClick={() => this.answer(1)}></div>
                     <div
-                        className={(this.state.activeButton == 2 ? 'active' : '') + " game-button btn-lb btn-yellow"}
+                        className={(this.state.activeButton === 2 ? 'active' : '') + " game-button btn-lb btn-yellow"}
                         onClick={() => this.answer(2)}></div>
                     <div
-                        className={(this.state.activeButton == 3 ? 'active' : '') + " game-button btn-rb btn-blue"}
+                        className={(this.state.activeButton === 3 ? 'active' : '') + " game-button btn-rb btn-blue"}
                         onClick={() => this.answer(3)}></div>
                     <div id="simon-center">
                         <div id="game-title">simon</div>
