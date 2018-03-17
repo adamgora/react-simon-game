@@ -199,3 +199,27 @@ body {
 #switch-container.on .toogle-text-off {
     left: 60px;
 }
+
+.info {
+    position: absolute;
+    background-color: #1d1f21;
+    color: #ebecf1;
+    text-align: center;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 9999;
+    width: 400px;
+    padding: 20px 0;
+}
+
+.info button  {
+    border-radius: 5px;
+    margin-top: 10px;
+    background-color: #2d7bc9;
+    border: none;
+    font-family: inherit;
+    padding: 10px 20px;
+    cursor: pointer;
+    outline: 0;
+}

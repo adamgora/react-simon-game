@@ -17,7 +17,14 @@ class App extends Component {
             locked: 1,
             playingQueue: false,
             strictMode: false,
+            infoButton: {
+                text: 'Success!',
+                buttonText: 'Next Level',
+                buttonAction: this.upOneLevel,
+                visible: false,
+            }
         };
+        this.maxLevel = 20;
 
         this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
         this.oscillator = this.audioContext.createOscillator();
@@ -90,6 +97,7 @@ class App extends Component {
             this.move();
             this.setState({
                 started: 1,
+                level: 1
             });
         }.bind(this));
 
@@ -112,7 +120,7 @@ class App extends Component {
         return new Promise((resolve) => {
             this.setState({
                 gameQueue: [],
-                level: 0,
+                level: 1,
             }, () => resolve())
         });
     }
@@ -125,13 +133,14 @@ class App extends Component {
         this.lockBoard();
         this.drawNext();
         this.playQueue();
-        this.upOneLevel();
     }
 
     upOneLevel() {
+        this.hideInfoBar();
         this.setState({
             level: this.state.level + 1
         });
+        this.move();
     }
 
     /**
@@ -145,7 +154,11 @@ class App extends Component {
     }
 
     setInterval() {
-        const intervalID = setInterval(this.playItem.bind(this), 1000);
+        const intervalID = setInterval(
+            function () {
+                this.playItem(this.state.gameQueue[this.state.currentQueueItem]);
+            }.bind(this),
+            1000);
         this.setState({intervalID});
     }
 
@@ -158,10 +171,10 @@ class App extends Component {
         this.setInterval();
     }
 
-    playItem() {
-        this.playSound(this.state.currentQueueItem);
-        this.highlightButton(this.state.currentQueueItem);
-        setTimeout(function() {
+    playItem(index) {
+        this.playSound(index);
+        this.highlightButton(index);
+        setTimeout(function () {
             this.unhiglightButtons();
         }.bind(this), 500);
         this.setState({currentQueueItem: this.state.currentQueueItem + 1});
@@ -171,18 +184,18 @@ class App extends Component {
     }
 
     playSound(index) {
-        const soundIndex = this.state.gameQueue[index];
-        if(soundIndex === undefined) {
+        //const soundIndex = this.state.gameQueue[index];
+        if (index === undefined) {
             return false;
         }
-        this.oscillator.frequency.value = this.state.fqs[soundIndex];
+        this.oscillator.frequency.value = this.state.fqs[index];
         this.gainNode.gain.linearRampToValueAtTime(0.5, this.audioContext.currentTime + 0.5);
         this.gainNode.gain.linearRampToValueAtTime(0, this.audioContext.currentTime + 1);
     }
 
     highlightButton(index) {
         this.setState({
-            activeButton: this.state.gameQueue[index]
+            activeButton: index
         })
     }
 
@@ -200,8 +213,9 @@ class App extends Component {
     }
 
     answer(button) {
-        if(this.state.locked) {
-           return false;
+
+        if (this.state.locked) {
+            return false;
         }
 
         const answers = [...this.state.answers];
@@ -209,18 +223,20 @@ class App extends Component {
 
         const lastAnswerIndex = answers.length - 1;
 
-        if(button == this.state.gameQueue[lastAnswerIndex]) {
-            this.highlightButton(lastAnswerIndex);
-            this.playSound(lastAnswerIndex);
+        if (button == this.state.gameQueue[lastAnswerIndex]) {
+            this.highlightButton(this.state.gameQueue[lastAnswerIndex]);
+            this.playSound(this.state.gameQueue[lastAnswerIndex]);
             this.setState({
                 answers: answers
             });
-            setTimeout(function() {
+            setTimeout(function () {
                 this.unhiglightButtons();
             }.bind(this), 500);
 
-            if(lastAnswerIndex == this.state.gameQueue.length - 1) {
-                this.move();
+            if (lastAnswerIndex == this.state.gameQueue.length - 1) {
+                //this.move();
+                this.lockBoard();
+                this.showInfoBar()
             }
 
         } else {
@@ -230,9 +246,9 @@ class App extends Component {
 
     error() {
         this.errorGain.gain.value = 0.5;
-        setTimeout(function() {
+        setTimeout(function () {
             this.errorGain.gain.value = 0;
-            if(this.state.strictMode) {
+            if (this.state.strictMode) {
                 this.resetGame().then(function () {
                     this.move();
                 }.bind(this));
@@ -244,12 +260,34 @@ class App extends Component {
         }.bind(this), 300);
     }
 
+    showInfoBar() {
+        this.setState({
+            infoButton: {...this.state.infoButton, visible: true}
+        });
+    }
+
+    hideInfoBar() {
+        this.setState({
+            infoButton: {...this.state.infoButton, visible: false}
+        });
+    }
+
     render() {
         return (
             <div className="App">
-                <button onClick={() => this.test()}>Start test</button>
-
                 <div id="game-container">
+                    {
+                        this.state.infoButton.visible
+                            ?
+                            <div className="info">
+                                <h1>{this.state.infoButton.text}</h1>
+                                <button
+                                    onClick={() => this.state.infoButton.buttonAction.call(this)}>{this.state.infoButton.buttonText}
+                                </button>
+                            </div>
+                            :
+                            null
+                    }
                     <div
                         className={(this.state.activeButton == 0 ? 'active' : '') + " game-button btn-lt btn-green"}
                         onClick={() => this.answer(0)}></div>
